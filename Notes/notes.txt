@@ -1,0 +1,78 @@
+Way Spring MVC works
+--------------------
+
+User -> sends Request -> Dispatcher Servlet -> Handler Mapping -> Controller -> View -> Dispatcher Servlet -> sends Response back to User
+
+@ResponseBody works
+-------------------
+
+User -> sends Request -> Dispatcher Servlet -> Handler Mapping -> Controller -> sends response to User bypassing Dispatcher Servlet
+based on the accept header in the request
+
+Difference between @Controller and @RestController
+--------------------------------------------------
+A restController is same as Controller, Only addition it adds is @ResponseBody
+
+Reference - https://www.genuitec.com/spring-frameworkrestcontroller-vs-controller/
+
+Adding @SpringBootApplication and having starter-web dependency in pom.xml will automatically cause DispatcherServlet to be 
+registered to the root of our application.
+
+folders - resources, public, static are by default configured to serve static contents.
+
+No need to specify @EnableWebMvc when a class is annotated with @SpringBootApplication and have starter-web dependency available
+
+ContentNegotiationViewResolver makes the decision of what should be returned based on the headers in request
+
+There are 2 ways to access the web project - spring-boot-web to understand content negotiation.
+
+http://localhost:8080/cat.json OR http://localhost:8080/cat.xml OR http://localhost:8080/cat 
+
+Templates
+---------
+Templates help render dynamic content. Templating helps keep UI seperate from Business logic. This resolves coupling between different 
+layers of code.
+Spring Boot supports - FreeMarker, Groovy, ThymeLeaf, Velocity, Mustache
+
+Client Cache
+------------
+
+spring.resources.chain.strategy.content.enabled=true - just enables resource versioning strategy. It rewrites the file name using hash.
+This causes the file names to be constantly changed which causes the client side cache to be busted.
+Ex - http://localhost:8080/css/index-6ae257207c231b4e9210a15d29991c3e.css
+To get to it - use "networking" on F12
+spring.resources.chain.strategy.content.paths=/** - this indic
+ates that all client side resources should be renamed.
+
+
+Another way to bust client cache when renaming the files is not possible is have a fixed length versioning strategy
+spring.resources.chain.strategy.fixed.enabled=true
+spring.resources.chain.strategy.fixed.paths=/**
+spring.resources.chain.strategy.fixed.version=v5 - Every time just change this value to create a unique value
+Ex - http://localhost:8080/v5/css/index.css
+
+
+Embedded Container
+-------------------
+Tomcat is the default container. I changed it to Jetty by adding Jetty dependency and exluding Tomcat starter pom from 
+Dependency Hierarchy of pom.xml file. right click and select "exclude maven artifact"
+server.address - represents the IP_address/host_name of the server Jetty connector will bind our server to.
+
+server.compression.enabled=true - enables the compression of responses sent to the client
+server.compression.min-response-size=0 - compresses all the response irrespective of response size
+server.compression.mime-types - By default Spring Boot supports - xml, html, plain text and CSS
+EX- Look at the Response Headers of thymeleaf in developer tools - networking - Content-Encoding:gzip
+
+Registering Web Components like Filter
+---------------------------------------
+Can be done in 2 ways - 
+MyComponentFilter.java - registering the Filter class as @Component that makes the IOC Container to treat
+this as a Bean.
+MyWebFilter.java - for this class to work we need to add the annotation @ServletComponentScan to SpringBootApplication class
+Annotation @ServletComponentScan -searches for annotation like - WebFilter, WebServlet, WebListener and register them with IOC Container
+
+Programmatically Configuring Embedded Container
+-----------------------------------------------
+
+MyEmbeddedContainerCustomizer.java - I couldn't complete the examples as I couldn't find either of the interfaces in eclipse.
+I looked up on the net not much help though.

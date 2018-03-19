@@ -1,0 +1,8 @@
+.welcome{
+	font-weight: bold;
+	text-decoration: blink;
+	color: red;
+}
+.message{
+	color: blue;	
+}
